@@ -8,7 +8,6 @@ possible = 0
 for line in inp:
     line = sorted([int(i.strip()) for i in list(filter(None, line))])
 
-    is_possible = True
     if line[0] + line[1] > line[2]:
         possible += 1
         
