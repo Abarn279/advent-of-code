@@ -1,5 +1,4 @@
 from file_importer import FileImporter
-import collections
 
 # Get input
 inp = [i.strip() for i in FileImporter.get_input("/../input/4a.txt").split("\n")]
