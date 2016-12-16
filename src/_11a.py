@@ -1,47 +1,71 @@
 from file_importer import FileImporter
 import re
 import itertools
-import queue
+from queue import Queue
+import copy
 
-def get_min_steps(building):
-    # Move the stuff!
-    #for element in elements_to_move:
-     #   building[elevator].remove(element)
-      #  building[elevator + next_move_direction].append(element)
-    
-    # Move elevator up or down
-    #elevator += next_move_direction
-
-    # Check floor we moved to to make sure it's not busted
-    #non_connected_chips = [i for i in building[elevator] if i.endswith('m') and i[0] + "g" not in building[elevator]]
-    #if len(non_connected_chips) and len([j for j in building[elevator] if j.endswith('g')]):
-     #   return 10000000
-
-    # Set up possible combinations to bring up/down
-    #possible_ups = list(itertools.combinations(building[elevator], 2)) + list(itertools.combinations(building[elevator], 1))
-    #possible_downs = possible_ups[:] if elevator != 0 else []
-    #possible_ups = possible_ups if elevator != len(building) - 1 else []
-
-
-    # If all have made it to top, 
-    #if len(building[-1]) == sum([len(floor) for floor in building]):
-     #   return 1
-
-    #return 1 # + min (get_min_steps for all possible moves)
-
+def check_done(building):
+    for i in range(len(building) - 1):
+        if len(building[i]) > 0:
+            return False
+    return True
 
 inp = [i.strip() for i in FileImporter.get_input("/../input/11a.txt").split("\n")]
+building = [set() for i in range(len(inp))]
+elevator = 0 # Floor of elevator
 
-building = [[] for i in range(len(inp))]
-
-# Floor of elevator
-elevator = 0
-
-itemCount = 0
 for floor in range(len(inp)):
-    items = re.findall("(?:a )(\S)\S* (\S)\S*", inp[floor])
+    items = re.findall("(?:a )(\S\S)\S* (\S)\S*", inp[floor])
     for i in items:
-        itemCount += 1
-        building[floor].append(i[0] + i[1])
+        building[floor].add(i[0] + i[1])
 
-print(get_min_steps(building))
+visited = []
+q = Queue()
+# Building configuration, elevator position, steps from original
+start = ( building[:], 0, 0 )
+q.put(start)
+
+while not q.empty():
+    current_state = q.get()
+
+    # Are we done?
+    if check_done(current_state[0]):
+        print(current_state[2])
+        break
+
+    # Have we been here before?
+    if ( (current_state[0], current_state[1]) ) in visited:
+        continue
+
+    # Append building w/ elevator position
+    visited.append( (current_state[0], current_state[1]) ) 
+    
+    # Will the chips melt?
+    non_connected_chips = [i for i in current_state[0][current_state[1]] if i.endswith('m') and i[0] + i[1] + "g" not in current_state[0][current_state[1]]]
+    if len(non_connected_chips) and len([j for j in current_state[0][current_state[1]] if j.endswith('g')]):
+        continue
+
+    # Get possible moves
+    possible_ups = list(itertools.combinations(current_state[0][current_state[1]], 2)) + list(itertools.combinations(current_state[0][current_state[1]], 1))
+    possible_downs = possible_ups[:] if current_state[1] != 0 else []
+    possible_ups = possible_ups if current_state[1] != len(current_state[0]) - 1 else []
+
+    for possible_up in possible_ups:
+        new_config = copy.deepcopy(current_state[0])
+        elevator = current_state[1]
+
+        for element in possible_up:
+            new_config[elevator].remove(element)
+            new_config[elevator + 1].add(element)
+        
+        q.put( (new_config, elevator + 1, current_state[2] + 1) )
+    
+    for possible_down in possible_downs:
+        new_config = copy.deepcopy(current_state[0])
+        elevator = current_state[1]
+
+        for element in possible_down:
+            new_config[elevator].remove(element)
+            new_config[elevator - 1].add(element)
+        
+        q.put( (new_config, elevator - 1, current_state[2] + 1) )
