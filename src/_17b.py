@@ -32,12 +32,14 @@ visited = set()
 q = Queue()
 q.put(start)
 
+paths = []
+
 while not q.empty():
     current = q.get()
     
     if current[X] == 3 and current[Y] == 3:
-        print(current[CURRENT_PATH])
-        break
+        paths.append(current[CURRENT_PATH])
+        continue
 
     to_hash = inp + current[CURRENT_PATH]
     if to_hash in visited:
@@ -58,3 +60,4 @@ while not q.empty():
             if key == "R" and check_pos(current[X] + 1, current[Y]):
                 q.put( (current[X] + 1, current[Y], current[CURRENT_PATH] + "R") )
          
+print(len(max(paths, key=len)))
