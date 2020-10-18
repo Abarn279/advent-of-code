@@ -1,71 +1,97 @@
 from file_importer import FileImporter
-import re
-import itertools
 from queue import Queue
-import copy
+from random import sample
+from itertools import combinations
 
-def check_done(building):
-    for i in range(len(building) - 1):
-        if len(building[i]) > 0:
-            return False
+def get_string_rep(floors):
+    s = "" 
+    for f in floors:
+        f = sorted(list(f))
+        s += ",".join(f) + '\n'
+    return s
+
+def is_valid(floors): 
+    for floor in floors:
+
+        # If there's generators without microchips, then this floor is radioactive
+        all_gens = set([i for i in floor if i[1] == 'G'])
+        is_radioactive = False 
+        for g in all_gens:
+            if g[0] + 'M' not in floor:
+                is_radioactive = True
+
+        # If there's any microchips without generators AND there's radioactivity, then this configuration isn't valid
+        for m in set([i for i in floor if i[1] == 'M']):
+            if m[0] + 'G' not in floor and is_radioactive:
+                return False
     return True
 
-inp = [i.strip() for i in FileImporter.get_input("/../input/11a.txt").split("\n")]
-building = [set() for i in range(len(inp))]
-elevator = 0 # Floor of elevator
+def is_done(floors):
+    return len(floors[0]) == 0 and len(floors[1]) == 0 and len(floors[2]) == 0
 
-for floor in range(len(inp)):
-    items = re.findall("(?:a )(\S\S)\S* (\S)\S*", inp[floor])
-    for i in items:
-        building[floor].add(i[0] + i[1])
+floors = [None for i in range(4)]
 
-visited = []
-q = Queue()
-# Building configuration, elevator position, steps from original
-start = ( building[:], 0, 0 )
-q.put(start)
+elevator_floor = 0
+floors[0] = set(["HM", "LM"])
+floors[1] = set(["HG"])
+floors[2] = set(["LG"])
+floors[3] = set()
+
+visited = set()
+q = Queue() 
+q.put((floors, elevator_floor, 0)) # Floor state, elevator floor, total steps
 
 while not q.empty():
-    current_state = q.get()
+    floors, elevator, current_steps = q.get()
+    visited.add((get_string_rep(floors), elevator))
 
-    # Are we done?
-    if check_done(current_state[0]):
-        print(current_state[2])
+    if is_done(floors):
+        print(current_steps)
         break
 
-    # Have we been here before?
-    if ( (current_state[0], current_state[1]) ) in visited:
-        continue
+    # pick zero, one, or two things at current floor
+    for i in range(0, 3):
 
-    # Append building w/ elevator position
-    visited.append( (current_state[0], current_state[1]) ) 
-    
-    # Will the chips melt?
-    non_connected_chips = [i for i in current_state[0][current_state[1]] if i.endswith('m') and i[0] + i[1] + "g" not in current_state[0][current_state[1]]]
-    if len(non_connected_chips) and len([j for j in current_state[0][current_state[1]] if j.endswith('g')]):
-        continue
+        # if there are at least i many things on this floor, proceed
+        if len(floors[elevator]) >= i:
 
-    # Get possible moves
-    possible_ups = list(itertools.combinations(current_state[0][current_state[1]], 2)) + list(itertools.combinations(current_state[0][current_state[1]], 1))
-    possible_downs = possible_ups[:] if current_state[1] != 0 else []
-    possible_ups = possible_ups if current_state[1] != len(current_state[0]) - 1 else []
+            # get all possible moveable combos of size i
+            combos = list(combinations(floors[elevator_floor], i))
 
-    for possible_up in possible_ups:
-        new_config = copy.deepcopy(current_state[0])
-        elevator = current_state[1]
+            # new state for both up and down
+            for d in [-1, 1]:
 
-        for element in possible_up:
-            new_config[elevator].remove(element)
-            new_config[elevator + 1].add(element)
-        
-        q.put( (new_config, elevator + 1, current_state[2] + 1) )
-    
-    for possible_down in possible_downs:
-        new_config = copy.deepcopy(current_state[0])
-        elevator = current_state[1]
+                # Taking none, just move elevator
+                if i == 0:
+                    if elevator + d < 0 or elevator + d > 3:
+                        continue
 
-        for element in possible_down:
-            new_config[elevator].remove(element)
-            new_config[elevator - 1].add(element)
-        
-        q.put( (new_config, elevator - 1, current_state[2] + 1) )
+                    if (get_string_rep(floors), elevator + d) not in visited:
+                        q.put((floors[:], elevator + d, current_steps + 1))
+
+                    continue
+            
+                # Taking 1 or more 
+                for combo in combos:
+                
+                    # elevator cant be outside of building
+                    if elevator + d < 0 or elevator + d > 3:
+                        continue
+
+                    new_floors = floors[:]
+
+                    for c in combo:
+                        new_floors[elevator].remove(c)
+                        new_floors[elevator + d].add(c)
+
+                    # don't add if already visited
+                    if (get_string_rep(new_floors), elevator + d) in visited:
+                        continue
+
+                    # don't add if invalid config
+                    if not is_valid(new_floors):
+                        continue
+
+                    q.put((new_floors, elevator + d, current_steps + 1))
+
+print(visited)
