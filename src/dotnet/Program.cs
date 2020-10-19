@@ -116,6 +116,7 @@ namespace dotnet
             return true;
         }
 
+        // Found on stackoverflow for nCk
         private static IEnumerable Combinations<T>(IEnumerable<T> elements, int k)
         {
             var elem = elements.ToArray();
@@ -134,6 +135,7 @@ namespace dotnet
             } while (NextCombination(numbers, size, k));
         }
 
+        // used by above function for combinations
         private static bool NextCombination(IList<int> num, int n, int k)
         {
             bool finished;
