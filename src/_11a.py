@@ -17,10 +17,7 @@ def is_valid(floors):
 
         # If there's generators without microchips, then this floor is radioactive
         all_gens = set([i for i in floor if i[1] == 'G'])
-        is_radioactive = False 
-        for g in all_gens:
-            if g[0] + 'M' not in floor:
-                is_radioactive = True
+        is_radioactive = len(all_gens) > 0
 
         # If there's any microchips without generators AND there's radioactivity, then this configuration isn't valid
         for m in set([i for i in floor if i[1] == 'M']):
@@ -36,9 +33,9 @@ def is_done(floors):
 
 floors = [None for i in range(4)]
 
-floors[0] = set(["HM", "LM"])
-floors[1] = set(["HG"])
-floors[2] = set(["LG"])
+floors[0] = set(["TG", "TM", "PG", "SG"])
+floors[1] = set(["PM", "SM"])
+floors[2] = set(["XG", "XM", "RG", "RM"])
 floors[3] = set()
 
 # BFS
