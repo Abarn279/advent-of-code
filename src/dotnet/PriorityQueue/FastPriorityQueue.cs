@@ -350,18 +350,18 @@ namespace Priority_Queue
 #endif
         public T Dequeue()
         {
-#if DEBUG
-            if(_numNodes <= 0)
-            {
-                throw new InvalidOperationException("Cannot call Dequeue() on an empty queue");
-            }
+// #if DEBUG
+//             if(_numNodes <= 0)
+//             {
+//                 throw new InvalidOperationException("Cannot call Dequeue() on an empty queue");
+//             }
 
-            if(!IsValidQueue())
-            {
-                throw new InvalidOperationException("Queue has been corrupted (Did you update a node priority manually instead of calling UpdatePriority()?" +
-                                                    "Or add the same node to two different queues?)");
-            }
-#endif
+//             if(!IsValidQueue())
+//             {
+//                 throw new InvalidOperationException("Queue has been corrupted (Did you update a node priority manually instead of calling UpdatePriority()?" +
+//                                                     "Or add the same node to two different queues?)");
+//             }
+// #endif
 
             T returnMe = _nodes[1];
             //If the node is already the last node, we can remove it immediately

@@ -20,18 +20,18 @@ namespace dotnet
         /// <returns></returns>
         public static AStarResponse Astar<T>(AStarNode start,
                                 Func<AStarNode, bool> isGoalFunc,
-                                Func<AStarNode, double> heuristicFunc,
-                                Func<AStarNode, AStarNode, double> costFunc,
+                                Func<AStarNode, float> heuristicFunc,
+                                Func<AStarNode, AStarNode, float> costFunc,
                                 Func<AStarNode, IList<AStarNode>> getNeighborsFunc,
                                 Func<AStarNode, T> getKeyFunc)
         {
-            var queue = new SimplePriorityQueue<AStarNode, double>();
+            var queue = new FastPriorityQueue<AStarNode>(1000000);
             queue.Enqueue(start, 0);
 
             // A map of node key to it's previous connected node in the resulting path
             var lastNodeDict = new Dictionary<T, AStarNode>();
             // A map of node key to its cost from the starting node
-            var costFromStart = new Dictionary<T, double>();
+            var costFromStart = new Dictionary<T, float>();
 
             // lastNodeDict[getKeyFunc(start)] = null;
             costFromStart[getKeyFunc(start)] = 0;
@@ -92,6 +92,6 @@ namespace dotnet
 
     public class AStarResponse
     {
-        public double Cost { get; set; }
+        public float Cost { get; set; }
     }
 }

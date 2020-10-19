@@ -19,7 +19,7 @@ namespace dotnet
 
             var floors = new List<HashSet<string>>()
             {
-                new HashSet<string>() { "TG", "TM", "PG", "SG" },
+                new HashSet<string>() { "TG", "TM", "PG", "SG", "EG", "EM", "DG", "DM" },
                 new HashSet<string>() { "PM", "SM" },
                 new HashSet<string>() { "XG", "XM", "RG", "RM" },
                 new HashSet<string>()
@@ -60,6 +60,8 @@ namespace dotnet
 
                         foreach (var d in new int[] { -1, 1 })
                         {
+                            if (d == -1 && i == 2) continue;
+
                             foreach (IEnumerable combo in combos)
                             {
                                 if (elevator + d < 0 || elevator + d > 3) continue;
@@ -158,7 +160,7 @@ namespace dotnet
         }
     }
 
-    public class AStarNode
+    public class AStarNode : Priority_Queue.FastPriorityQueueNode
     {
         public AStarNode(List<HashSet<string>> floors, int elevator, int currentSteps)
         {

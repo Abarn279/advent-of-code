@@ -85,6 +85,8 @@ def get_neighbors(n):
             # new state for both up and down
             for d in [-1, 1]:
 
+                if d == -1 and i == 2: continue
+
                 # Taking 1 or more 
                 for combo in combos:
                 
