@@ -1,6 +1,5 @@
 from file_importer import FileImporter
-from queue import Queue
-from random import sample
+from collections import deque
 from itertools import combinations
 
 def get_string_rep(floors):
@@ -33,18 +32,23 @@ def is_done(floors):
 
 floors = [None for i in range(4)]
 
-floors[0] = set(["TG", "TM", "PG", "SG"])
-floors[1] = set(["PM", "SM"])
-floors[2] = set(["XG", "XM", "RG", "RM"])
+# floors[0] = set(["TG", "TM", "PG", "SG"])
+# floors[1] = set(["PM", "SM"])
+# floors[2] = set(["XG", "XM", "RG", "RM"])
+# floors[3] = set()
+
+floors[0] = set(["HM", "LM"])
+floors[1] = set(["HG"])
+floors[2] = set(["LG"])
 floors[3] = set()
 
 # BFS
 visited = set()
-q = Queue() 
-q.put((floors, 0, 0)) # Floor state, elevator floor #, total steps
+q = deque() 
+q.append((floors, 0, 0)) # Floor state, elevator floor #, total steps
 
-while not q.empty():
-    floors, elevator, current_steps = q.get()
+while len(q) > 0:
+    floors, elevator, current_steps = q.popleft()
     visited.add((get_string_rep(floors), elevator))
 
     if is_done(floors):
@@ -86,4 +90,4 @@ while not q.empty():
                     if not is_valid(new_floors):
                         continue
 
-                    q.put((new_floors, elevator + d, current_steps + 1))
+                    q.append((new_floors, elevator + d, current_steps + 1))
