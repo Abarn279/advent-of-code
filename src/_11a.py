@@ -1,6 +1,7 @@
 from file_importer import FileImporter
 from collections import deque
 from itertools import combinations
+from searches import astar
 
 def get_string_rep(floors):
     ''' hash function for visited set '''
@@ -32,28 +33,24 @@ def is_done(floors):
 
 floors = [None for i in range(4)]
 
-# floors[0] = set(["TG", "TM", "PG", "SG"])
-# floors[1] = set(["PM", "SM"])
-# floors[2] = set(["XG", "XM", "RG", "RM"])
-# floors[3] = set()
-
-floors[0] = set(["HM", "LM"])
-floors[1] = set(["HG"])
-floors[2] = set(["LG"])
+floors[0] = set(["TG", "TM", "PG", "SG"])
+floors[1] = set(["PM", "SM"])
+floors[2] = set(["XG", "XM", "RG", "RM"])
 floors[3] = set()
 
-# BFS
-visited = set()
-q = deque() 
-q.append((floors, 0, 0)) # Floor state, elevator floor #, total steps
+def heuristic(n):
+    total = 0
+    for floor_ind in range(len(n[0])):
+        total += len(n[0][floor_ind]) * (3 - floor_ind)
+    return total
 
-while len(q) > 0:
-    floors, elevator, current_steps = q.popleft()
-    visited.add((get_string_rep(floors), elevator))
+def get_neighbors(n):
+    global visited 
 
-    if is_done(floors):
-        print(current_steps)
-        break
+    floors = n[0]
+    elevator = n[1]
+    current_steps = n[2]
+    neighbors = []
 
     # pick one or two things at current floor
     for i in range(1, 3):
@@ -82,12 +79,19 @@ while len(q) > 0:
                         new_floors[elevator].remove(c)
                         new_floors[elevator + d].add(c)
 
-                    # don't add if already visited
-                    if (get_string_rep(new_floors), elevator + d) in visited:
-                        continue
-
                     # don't add if invalid config
                     if not is_valid(new_floors):
                         continue
 
-                    q.append((new_floors, elevator + d, current_steps + 1))
+                    neighbors.append((new_floors, elevator + d, current_steps + 1))
+    return neighbors
+
+steps = astar(start = (floors, 0, 0), 
+    is_goal_fn = lambda x: is_done(x[0]),
+    heuristic_fn = heuristic,
+    cost_fn = lambda a, b: 1,
+    get_neighbors_fn = get_neighbors,
+    get_key_fn = lambda x: (get_string_rep(x[0]), x[2])
+)
+
+print(steps)
