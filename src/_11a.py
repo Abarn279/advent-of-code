@@ -8,7 +8,7 @@ def get_string_rep(floors):
     s = "" 
     for f in floors:
         f = sorted(list(f))
-        s += ",".join(f) + ' | '
+        s += ",".join(f) + '|'
     return s
 
 def is_valid(floors): 
@@ -41,13 +41,13 @@ floors[1] = set(["HG"])
 floors[2] = set(["LG"])
 floors[3] = set()
 
+# BFS
 visited = set()
-previous_map = {}
 q = Queue() 
-q.put((floors, 0, 0)) # Floor state, elevator floor, total steps
+q.put((floors, 0, 0)) # Floor state, elevator floor #, total steps
 
 while not q.empty():
-    floors, elevator, current_steps, previous = q.get()
+    floors, elevator, current_steps = q.get()
     visited.add((get_string_rep(floors), elevator))
 
     if is_done(floors):
@@ -73,8 +73,10 @@ while not q.empty():
                     if elevator + d < 0 or elevator + d > 3:
                         continue
 
+                    # create a copy of the existing state so that we don't share references of sets within
                     new_floors = copy_state(floors)
 
+                    # try to make the move
                     for c in combo:
                         new_floors[elevator].remove(c)
                         new_floors[elevator + d].add(c)
