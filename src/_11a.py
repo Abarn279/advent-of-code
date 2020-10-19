@@ -2,6 +2,7 @@ from file_importer import FileImporter
 from collections import deque
 from itertools import combinations
 from searches import astar
+import time
 
 def get_string_rep(floors):
     ''' hash function for visited set '''
@@ -31,12 +32,32 @@ def copy_state(floors):
 def is_done(floors):
     return len(floors[0]) == 0 and len(floors[1]) == 0 and len(floors[2]) == 0
 
+start = time.time()
 floors = [None for i in range(4)]
 
-floors[0] = set(["TG", "TM", "PG", "SG"])
-floors[1] = set(["PM", "SM"])
-floors[2] = set(["XG", "XM", "RG", "RM"])
+# part 1
+# floors[0] = set(["TG", "TM", "PG", "SG"])
+# floors[1] = set(["PM", "SM"])
+# floors[2] = set(["XG", "XM", "RG", "RM"])
+# floors[3] = set()
+
+# part 1 sean
+floors[0] = set(["SG", "SM", "PG", "PM"])
+floors[1] = set(["TG", "RG", "RM", "CG", "CM"])
+floors[2] = set(["TM"])
 floors[3] = set()
+
+# part 2
+# floors[0] = set(["TG", "TM", "PG", "SG", "EG", "EM", "DG", "DM"])
+# floors[1] = set(["PM", "SM"])
+# floors[2] = set(["XG", "XM", "RG", "RM"])
+# floors[3] = set()
+
+# test
+# floors[0] = set(["HM", "LM"])
+# floors[1] = set(["HG"])
+# floors[2] = set(["LG"])
+# floors[3] = set()
 
 def heuristic(n):
     total = 0
@@ -95,3 +116,4 @@ steps = astar(start = (floors, 0, 0),
 )
 
 print(steps)
+print(time.time() - start)
