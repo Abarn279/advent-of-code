@@ -4,7 +4,7 @@ def get_name(file):
     return file.split("-", 1)[1]
 
 FILESYSTEM, SIZE, USED, AVAIL, USEP = 0, 1, 2, 3, 4
-inp =  [x.strip().split() for x in FileImporter.get_input("/../input/22a.txt").split("\n")][2:]
+inp =  [x.strip().split() for x in FileImporter.get_input("/../input/22a.txt").split("\n")][:]
 
 pairs = 0
 for a in range(len(inp)):

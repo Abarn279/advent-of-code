@@ -66,7 +66,6 @@ def get_distance_from_to_key(grid, from_key, to_key):
 
 def get_shortest_path(grid, starting_position, distance_map):
     ''' Get shortest path to getting all keys '''
-
     ####
     # A* NODE IS TUPLE -> (string of current keys, current cost, current location)
     # Indexed by:         (0                     , 1           , 2               )
@@ -80,8 +79,14 @@ def get_shortest_path(grid, starting_position, distance_map):
             if distance_to_other < min_dist:
                 min_dist = distance_to_other
 
+    finalNode = None
+
     def is_goal_fn(node):
-        return len(node[0]) == num_keys
+        nonlocal finalNode
+        is_goal = len(node[0]) == num_keys
+        if is_goal:
+            finalNode = node
+        return is_goal 
 
     def heuristic(node): 
         return min_dist * (num_keys - len(node[0]))
@@ -114,7 +119,7 @@ def get_shortest_path(grid, starting_position, distance_map):
     def get_key_fn(node):
         return node[0]
 
-    return astar(("", 0, starting_position), is_goal_fn, heuristic, cost, get_neighbors, get_key_fn)
+    return (astar(("", 0, starting_position), is_goal_fn, heuristic, cost, get_neighbors, get_key_fn), finalNode)
 
 # Input and stuff
 grid = {}
@@ -141,4 +146,8 @@ for poi in all_poi:
         distance = get_distance_from_to_key(grid, poi, other_poi)
         distance_map[poi[1]][other_poi] = distance
 
-print(get_shortest_path(grid, starting_position[0], distance_map))
+r = get_shortest_path(grid, starting_position[0], distance_map)
+
+final_poi = r[1][2]
+
+print(r[0] + get_distance_from_to_key(grid, (final_poi, r[1][0][:-1]), starting_position)[1])
