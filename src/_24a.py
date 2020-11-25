@@ -83,7 +83,7 @@ def get_shortest_path(grid, starting_position, distance_map):
 
     def is_goal_fn(node):
         nonlocal finalNode
-        is_goal = len(node[0]) == num_keys
+        is_goal = len(node[0]) == num_keys + 1
         if is_goal:
             finalNode = node
         return is_goal 
@@ -101,8 +101,11 @@ def get_shortest_path(grid, starting_position, distance_map):
         distances_from_here = distance_map[this_char]
         keys_available = []
 
-        # Keys are available if keys_encountered on the path is a subset of keys_acquired
         for other_char_key in distances_from_here:
+
+            if other_char_key[1] == '.' and len(keys_acquired) != num_keys:
+                continue
+
             other_char_pos, distance_to_other = distance_map[this_char][other_char_key]
 
             # If all of the keys on this path have been acquired, it's a viable path
@@ -139,10 +142,6 @@ all_poi = [i for i in grid.items() if i[1] in string.digits] + [starting_positio
 for poi in all_poi:
     other_pois = [i for i in all_poi if i[1] != poi[1]]
     for other_poi in other_pois:
-
-        if other_poi[1] == '.':
-            continue
-
         distance = get_distance_from_to_key(grid, poi, other_poi)
         distance_map[poi[1]][other_poi] = distance
 
@@ -150,4 +149,4 @@ r = get_shortest_path(grid, starting_position[0], distance_map)
 
 final_poi = r[1][2]
 
-print(r[0] + get_distance_from_to_key(grid, (final_poi, r[1][0][:-1]), starting_position)[1])
+print(r[0])
